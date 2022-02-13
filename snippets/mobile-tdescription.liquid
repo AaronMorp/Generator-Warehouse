@@ -1,0 +1,307 @@
+<head>
+  <script src="https://cdn.jsdelivr.net/npm/vue@2.5.16/dist/vue.js"></script>
+</head>
+
+<button type="button" class="collapsible active"><div style="margin-top: 0px; padding-top: 0px;">Product Description<span class="plus"></span></div></button>
+<div class="content" style="display: block">
+
+  <div>
+    <div class="title">
+      Features 
+    </div>
+      <ul class="featuresList">  
+ 		{{ productDescription[3] }}   
+      </ul>      
+  </div>  
+    
+   
+<div>   
+  <div class="title">  
+    Specifications      
+  </div>   
+  
+     
+  {% assign plugImages = productDescription[4]  | split: "<img" %}  
+  {% assign num = plugImages.size | minus: 1 %}  
+  {% assign my_float = num | times: 1.0 %}  
+  {% assign plug_number = 1 | divided_by: my_float  %}  
+  {% assign plug_width = plug_number | times: 100  %}  
+
+  
+  <div class="row">
+  {% assign numberOfPlugs = productDescription[3] | split: "<img" %} 
+    {% for n in numberOfPlugs %}  
+    {% if n contains ">" %} 
+    {% assign nchunk = n | split: ">" %}
+    <div class="column" style="width: {{plug_width}}%">
+     <img {{ nchunk.first }}    >
+    </div> 
+    {% endif %} 
+    {% endfor %} 
+ </div>
+      
+
+ <div class="prodContainer">
+    <div class="minititle" style="">Product Specs</div>
+      {{ productDescription[4] }}
+    </div>
+ 
+
+
+  
+  
+  {% assign isEngineEmpty = productDescription[5] | strip | split: "<h6>" %} 
+  {% for e in isEngineEmpty %}       
+    {% if e contains "</h6>" %}
+      {% assign echunk = e | strip | split: "</h6>" %}
+
+    {% elsif forloop.first %}
+      {% assign pretext =  e %}
+    {% endif %}
+  {% endfor %} 
+  
+ {% assign gridTitle2 = productDescription[5] | strip | split: "<h3>" %}  
+ {% if echunk.first == "Engine" %}
+  <div class="prodContainer"> 
+      {{ productDescription[5] }} 
+    </div>
+  {% endif %}
+  
+
+   	{% assign isOverviewEmpty = productDescription[6] | strip | split: "<h6>" %} 
+    {% for o in isOverviewEmpty %}       
+      {% if o contains "</h6>" %} 
+      	{% assign ochunk = o | strip | split: "</h6>" %}
+      {% elsif forloop.first %}
+      	{% assign pretext =  o %}
+      {% endif %}
+    {% endfor %} 
+
+     {% assign gridTitle3 = productDescription[6] | strip | split: "<h3>" %}  
+      {% if ochunk.first == "Overview" %}
+      <div class="prodContainer">
+        {{ productDescription[6] }}
+      </div> 
+    {% endif %} 
+ 
+    {% assign isPlugsEmpty = productDescription[7] | strip | split: "<h6>" %} 
+    {% for p in isPlugsEmpty %}       
+      {% if p contains "</h6>" %}
+        {% assign pchunk = p | strip | split: "</h6>" %}
+
+      {% elsif forloop.first %}  
+        {% assign pretext =  p %} 
+      {% endif %}
+    {% endfor %} 
+  
+  
+  
+    {% assign gridTitle4 = productDescription[7] | strip | split: "<h3>" %}  
+    {% if pchunk.first == "Plugs" %}
+      <div class="prodContainer" style="padding-bottom: 20px;">
+        {{ productDescription[7] }} 
+      </div> 
+  	{% endif %} 
+  </div>   
+</div>
+ 
+  
+<button type="button" class="collapsible"><div class="collapsibleDiv">Reviews<span class="plus"></span></div></button>
+<div class="content">
+  <div>
+    <div id="mobile-product-reviews"></div>
+  </div>
+</div>
+
+<button type="button" class="collapsible"><div class="collapsibleDiv">Q &amp; A<span class="plus"></span></div></button>
+<div class="content"> 
+  <div> 
+    <div id="mobile-qa-section"> 
+
+    </div>
+  </div>
+</div>
+
+  <button type="button" class="collapsible"><div class="collapsibleDiv">Accessories<span class="plus"></span></div></button>
+  <div class="content">
+        <div id="app" class="mobile-vue-form"> 
+          <div class="title"> Accessories </div>  
+          
+      </div>
+  </div>  
+
+
+
+  <button type="button" class="collapsible"><div class="collapsibleDiv">Warranty/Manuals<span class="plus"></span></div></button>
+  <div class="content" style="width: 100%;">
+    {{ productDescription[8] }}
+  </div> 
+ 
+
+  <button type="button" class="collapsible"><div class="collapsibleDiv">Videos<span class="plus"></span></div></button>
+  <div class="content"> 
+    {{ productDescription[9] }}
+  </div>
+
+  
+
+  
+<script>
+  var coll = document.getElementsByClassName("collapsible");
+  var i;
+
+  for (i = 0; i < coll.length; i++) {
+    coll[i].addEventListener("click", function() {
+      this.classList.toggle("active");
+      var content = this.nextElementSibling;
+      if (content.style.display === "block") {
+        content.style.display = "none";
+      } else {
+        content.style.display = "block";
+      } 
+    });
+  }  
+</script>
+
+<script>
+      var custom_products = []
+     {% for item in product.metafields.add_product %}
+       {% assign add_handle = item | last %}
+       var object = {}
+       object.name = "{{ item | last }}"
+       object.price = {{ all_products[add_handle].price | money_without_currency }}
+       object.title = "{{ all_products[add_handle].title }}"
+       object.image = "{{ all_products[add_handle].featured_image | img_url }}"
+       object.id = "{{ all_products[add_handle].id }}"
+       object.active = false
+       object.product_class =  "line_item"
+       custom_products.push(object)
+     {% endfor %}
+</script>
+
+<script>
+  var app = new Vue({
+    el: '#app',
+    data: {
+      custom_products: custom_products
+    },
+    delimiters: ['${', '}']
+  })
+</script>
+
+<script>  
+  document.addEventListener( 'DOMContentLoaded', function () {
+    $('ul.tabs').each(function(){
+      var active, content, links = $(this).find('a');
+      active = links.first().addClass('active');
+      content = $(active.attr('href'));
+      links.not(':first').each(function () {
+        $($(this).attr('href')).hide();
+      });
+      $(this).find('a').click(function(e){
+        active.removeClass('active');
+        content.hide();
+        active = $(this);
+        content = $($(this).attr('href'));
+        active.addClass('active');
+        content.show();
+        return false;
+      });
+    });
+  }, false );  
+</script>
+
+
+<style>
+button.collapsible {
+  background-color: #1e2d7d; 
+  color: white;
+  cursor: pointer;
+  padding-top: 10px;
+  padding-bottom: 30px;
+  margin-bottom: 10px;
+  padding-left: 20px;
+  padding-right: 20px;
+  width: 100%;
+  border: none;
+  text-align: left;
+  font-size: 15px;
+  font-weight: 700;
+  
+}
+
+.active, .collapsible:hover {
+
+}
+
+.content {
+  padding: 0 5px;
+  display: none;
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+  
+  
+button.collapsible span::before {
+  content:"+"
+}
+button.collapsible.active span::before {
+  content:"-"
+}
+  
+  
+ 
+.mobile-vue-form {
+  border: 1px solid #7796a8;
+  width: 100%;
+  margin-top: 20px;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.vue-item{
+  display: flex;
+  overflow: hidden;
+  padding: 30px 0;
+  border-bottom: 1px solid #d5d5d5;
+  width: 100%;
+}
+ 
+.vue-image {
+  margin-left: 20px;
+  margin-right: 20px;
+  overflow: hidden;
+  float: left;
+}
+  
+.vue-text {
+  float: left;
+  width: 30%;
+  font-size: 16px;
+  font-weight: 700;
+  font-family: Roboto,sans-serif;
+}
+
+.vue-price {
+  float: right;
+  text-align: right;
+  width: 50%;
+  font-family: Roboto,sans-serif;
+}
+ 
+.vue-button {
+  display: block;
+  background-color: #138626;
+  color: #fff;
+  cursor: pointer;
+} 
+  
+.plus {
+  float:right; 
+  color: white; 
+}
+  
+  
+  
+</style>

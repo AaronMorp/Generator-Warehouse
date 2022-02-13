@@ -1,0 +1,687 @@
+<head>
+  <script src="https://cdn.jsdelivr.net/npm/vue@2.5.16/dist/vue.js"></script>
+  <script src="https://use.fontawesome.com/releases/v5.15.3/js/all.js" data-auto-replace-svg="nest"></script>
+</head>
+
+{% comment %}
+	if combine_pretext is false, the text before the first <h6> will be shown above all tabs, otherwise added to the first tab
+{% endcomment %}
+{% assign combine_pretext = false %}
+
+{% assign description = tabbed-description | default: product.description %} 
+{% if description contains "<h6>" %}
+	{% assign tab_heads = '' %}
+	{% assign tab_texts = '' %}
+	{% assign pretext = '' %}
+
+
+{% if product.metafields.spr.reviews %}
+	{% capture review_data %}{{ product.metafields.spr.reviews }}{% endcapture %} 
+	{% assign review_data1 = review_data | split: "reviewCount" %} 
+	{% assign review_data2 = review_data1[1] | split: ":" %}
+	{% assign review_data3 = review_data2[1] | split: '"' %}
+	{% assign review_count_value = review_data3[1] | plus: 1 | minus: 1 %}
+{% endif %} 
+
+{% assign productDescription = product.description | split: '<!-- split -->'  %}
+
+  {% assign numQuestions = productDescription[10] | strip | split: "<p>" %} 
+  {% for q in numQuestions %}       
+    {% if q contains "</p>" %}
+      {% assign qchunk = q | strip | split: "</p>" %}
+
+    {% elsif forloop.first %}
+      {% assign pretext =  q %}
+    {% endif %}
+  {% endfor %} 
+
+<ul class="tabs" class="desktops">
+	<a class="active" href="#tab1"><li>Description</li></a>
+    <a href="#tab2"><li>Reviews <div class="reviewCount" id="reviewCount">({{ review_count_value }})</div></li></a>
+    <a href="#tab3"><li>Q&A<div class="reviewCount" id="qaCount"> {{ qchunk.first }} </div></li></a> 
+	<a href="#tab4"><li>Accessories<div id="accessoriesCount"></div></li></a>
+    <a href="#tab6"><li>Warranty</li></a>
+    <a href="#tab7"><li>Videos</li></a>
+</ul>  
+<ul class="tabs-content">
+<li class="active" id="tab1">
+  
+  {% assign bulletPoints = description | strip | split: "<li>" %}  
+  {% assign bold = description | strip | split: "<b>" %}  
+  
+  
+  {% assign numberTitles = productDescription[1]  | split: "<a>" %}  
+  {% assign num = numberTitles.size | minus: 1 %}
+  {% assign my_float = num | times: 1.0 %}
+  {% assign column_number = 1 | divided_by: my_float  %}
+  {% assign column_width = column_number | times: 100  %}
+  
+    <div class="row" style="padding-bottom: 30px; padding-top: 30px;">
+      {% assign numberContent = productDescription[1]  | split: "<a>" %}  
+      {% for c in numberContent %}  
+        {% if c contains "</a>" %}
+          {% assign cchunk = c | split: "</a>" %}
+          <div class="column" style=" width: {{column_width}}%">
+            {{ cchunk.first }} 
+          </div>
+        {% endif %} 
+      {% endfor %}
+    </div>  
+
+  <div class="leftHalf">
+    <div class="title">
+      Features
+    </div>
+      <ul class="featuresList"> 
+ 		{{ productDescription[3] }}
+      </ul>   
+  </div>
+
+ 
+<div class="rightHalf">
+<div class="title">
+Specifications
+  </div>
+  
+  
+  {% assign plugImages = productDescription[4]  | split: "<img" %}  
+  {% assign num = plugImages.size | minus: 1 %}
+  {% assign my_float = num | times: 1.0 %}
+  {% assign plug_number = 1 | divided_by: my_float  %}
+  {% assign plug_width = plug_number | times: 100  %}
+
+  
+  <div class="row">
+  {% assign numberOfPlugs = productDescription[3] | split: "<img" %} 
+    {% for n in numberOfPlugs %}  
+    {% if n contains ">" %}
+    {% assign nchunk = n | split: ">" %}
+    <div class="column" style="width: {{plug_width}}%">
+     <img {{ nchunk.first }}    >
+    </div>
+    {% endif %} 
+    {% endfor %}
+ </div>
+      
+
+ {% assign gridTitle1 = productDescription[4] | strip | split: "<h3>" %}  
+
+  <div class="prodContainer">
+    <div class="minititle" style="">Product Specs</div>
+      {{ productDescription[4] }}
+    </div>
+
+
+
+  
+  
+  {% assign isEngineEmpty = productDescription[5] | strip | split: "<h6>" %} 
+  {% for e in isEngineEmpty %}       
+    {% if e contains "</h6>" %}
+      {% assign echunk = e | strip | split: "</h6>" %}
+
+    {% elsif forloop.first %}
+      {% assign pretext =  e %}
+    {% endif %}
+  {% endfor %} 
+  
+ {% assign gridTitle2 = productDescription[5] | strip | split: "<h3>" %}  
+ {% if echunk.first == "Engine" %}
+  <div class="prodContainer">
+      {{ productDescription[5] }}
+    </div>
+  {% endif %}
+  
+
+   {% assign isOverviewEmpty = productDescription[6] | strip | split: "<h6>" %} 
+        {% for o in isOverviewEmpty %}       
+          {% if o contains "</h6>" %}
+          {% assign ochunk = o | strip | split: "</h6>" %}
+
+            {% elsif forloop.first %}
+                {% assign pretext =  o %}
+            {% endif %}
+        {% endfor %} 
+
+   {% assign gridTitle3 = productDescription[6] | strip | split: "<h3>" %}  
+    {% if ochunk.first == "Overview" %}
+    <div class="prodContainer">
+      {{ productDescription[6] }}
+    </div> 
+  {% endif %}
+ 
+  
+
+  
+  {% assign isPlugsEmpty = productDescription[7] | strip | split: "<h6>" %} 
+  {% for p in isPlugsEmpty %}       
+    {% if p contains "</h6>" %}
+      {% assign pchunk = p | strip | split: "</h6>" %}
+
+    {% elsif forloop.first %}
+      {% assign pretext =  p %}
+    {% endif %}
+  {% endfor %} 
+  
+  
+  
+    {% assign gridTitle4 = productDescription[7] | strip | split: "<h3>" %}  
+    {% if pchunk.first == "Plugs" %}
+    <div class="prodContainer"> 
+      {{ productDescription[7] }}
+    </div>
+  </div> 
+</li>
+{% endif %} 
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <li id="tab2"> 
+    <div id="desktop-product-reviews" class="review">
+       <div id="shopify-product-reviews" data-id="{{product.id}}">{{ product.metafields.spr.reviews }}</div>
+    </div>
+  </li>
+  
+  
+  
+  
+  <li id="tab3">
+    <div id="desktop-qa-section">
+      <div id="site-qa-section">
+        {% render 'questions-answers' %}
+        <a class='simpAskQuestion-btn qa-btn btn' style="cursor: pointer; vertical-align: top;">Ask Question</a>
+      </div>
+    </div>
+  <li>
+
+  
+    
+    
+    
+    
+    
+    
+    
+
+<li id="tab4">  
+      <div id="app" class="vue-form"> 
+        <div class="title"> Recommended Accessories</div>
+         <ul class="addition_products">  
+         <li v-for="custom_product in custom_products" data-product-id="custom_products.id">
+           <div class="vue-item">
+               <div class="vue-image">
+                 <img v-bind:src="custom_product.image" alt=""> 
+               </div>
+               <div class="vue-text">
+                 <p> <a v-bind:href="custom_product.url" v-bind:id="custom_product.id"> ${custom_product.title} </a> </p>    
+               </div>
+               <div class="vue-price">
+                 <span style="text-align: right; font-size: 23px; font-weight: 700; color: #138626;">$ ${custom_product.price | currency} </span>
+                 <div style="text-align: right; color: #138626; margin-top:0px;"><b> In-Stock </b></div>
+                    <input type="button" value="Add to cart" v-bind:id="custom_product.id" class="add-tocart-button product-form__add-button button button--primary" onclick="addToCart()" style="width: 30%; float: right; padding-left: 10px; padding-right: 10px; line-height: 35px; border: none;">
+             </div>            
+           </div>
+         </li>
+       </ul>   
+	</div>
+</li> 
+ 
+  
+
+
+  <li id="tab6">
+  {{ productDescription[8] }}
+  </li> 
+
+
+
+  <li id="tab7">
+    <div id="videoDiv">
+  {{ productDescription[9] }}
+    </div>
+  </li>
+  </ul>
+
+
+  
+
+<script>  
+  var review_count = '{{review_count_value}}';
+  var qa_count = '{{qchunk.first}}';
+  
+  if (review_count === "") {
+    document.getElementById("reviewCount").style.display = "none";
+  } 
+  
+  if (qa_count === "()" || qa_count === "") {
+    document.getElementById("qaCount").style.display = "none";
+  }
+  
+</script>
+
+
+<script>
+var coll = document.getElementsByClassName("collapsible");
+var i;
+
+for (i = 0; i < coll.length; i++) {
+  coll[i].addEventListener("click", function() {
+    this.classList.toggle("active");
+    var content = this.nextElementSibling;
+    if (content.style.display === "block") {
+      content.style.display = "none";
+    } else {
+      content.style.display = "block";
+    }
+  });
+}  
+</script>
+
+<script>
+      var iterationCount = 0;
+      var custom_products = []
+     {% for item in product.metafields.add_product %}
+       {% assign add_handle = item | last %}
+       var object = {}
+       object.name = "{{ item | last }}"
+       object.price = {{ all_products[add_handle].price | money_without_currency }}
+       object.title = "{{ all_products[add_handle].title }}"
+       object.image = "{{ all_products[add_handle].featured_image | img_url }}"
+       object.id = "{{ all_products[add_handle].selected_or_first_available_variant.id }}"
+       object.url = "{{ all_products[add_handle].url }}"
+       object.available = "{{ all_products[add_handle].available }}"
+       object.active = false
+       object.product_class =  "line_item"
+       custom_products.push(object)
+       iterationCount++;
+     {% endfor %}
+
+      if (iterationCount > 1) {
+        document.getElementById("accessoriesCount").innerHTML = "(" + iterationCount +")";
+      } else {
+        document.getElementById("accessoriesCount").style.display = "none";
+      }
+  
+       if (object.available == "true") {
+         document.getElementById("soldOutBut").style.display = "none";
+       } else {
+         document.getElementsByClassName("add-tocart-button").style.display = "none";     
+       }
+    
+  
+</script>
+
+
+<script>
+
+function addToCart() {
+     console.log("Clicked");
+  var id= event.target.id; 
+    $.ajax({
+      type: 'POST', 
+      url: '/cart/add.js',
+      dataType: 'json', 
+      data: {id:id,quantity:1},
+      success: function(){
+            location.href="/cart";
+            console.log("Success"); 
+      }
+   });
+}
+  
+</script>
+
+
+
+<script>
+  var app = new Vue({
+    el: '#app',
+    data: {
+      custom_products: custom_products
+    },
+    delimiters: ['${', '}']
+  })
+</script>
+
+<script>  
+  document.addEventListener( 'DOMContentLoaded', function () {
+    $('ul.tabs').each(function(){
+      var active, content, links = $(this).find('a');
+      active = links.first().addClass('active');
+      content = $(active.attr('href'));
+      links.not(':first').each(function () {
+        $($(this).attr('href')).hide();
+      });
+      $(this).find('a').click(function(e){
+        active.removeClass('active');
+        content.hide();
+        active = $(this);
+        content = $($(this).attr('href'));
+        active.addClass('active');
+        content.show();
+        return false;
+      });
+    });
+  }, false );  
+</script>
+ 
+
+
+<style>  
+ul.tabs {
+  border-top: 1px solid #DDDDDD;
+  border-left: 1px solid #DDDDDD;
+  border-bottom: 1px solid #DDDDDD;
+  display: block;
+  background-color: #f1f1f1;
+  text-align: center;
+}
+  
+ul.tabs li {
+  float: left;
+  display:inline-block;
+  border-right: 1px solid #DDDDDD;
+  width: calc(100% / 6);
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+ul.tabs li a {  
+  position: relative;
+  width: 100%;
+}
+ul.tabs a.active li {
+  color: white;
+  background-color: var(--primary-button-background);
+}
+ul.tabs li:first-child a.active {
+  margin-left: 0;
+}
+ul.tabs li:first-child a {
+
+}
+ul.tabs li:last-child a {
+
+}
+ul.tabs:before, ul.tabs:after {
+  content: " ";
+  display: block;
+  height: 5;
+  overflow: hidden;
+  visibility: hidden;
+  width: 5;
+}
+ul.tabs:after {
+  clear: both;
+}
+  
+.rte ul li:not(:last-child), .rte ol li:not(:last-child) {
+  margin-bottom: 0px;
+}
+
+.rte p:not(:last-child), .rte ul:not(:last-child), .rte ol:not(:last-child) {
+  margin-bottom: 0em;
+}
+
+.rte ul li::before {
+  content: none;
+  position: absolute;
+  left: -18px;
+  height: 5px;
+  width: 5px;
+  background: rgba(var(--text-color-rgb), 0.4);
+  list-style-type: none;
+}
+  
+.rte a:not(.button) {
+  color: black;
+  transition: none;
+  -webkit-text-decoration: none;
+  text-decoration: none;
+  text-underline-position: none;
+}
+   
+
+ 
+.contentHolder {
+  width: 105px; 
+  height: 92px; 
+}  
+  
+  
+  
+.column {
+
+}
+  
+.columns {
+  
+}
+  
+   
+.title {
+  width: 100%;
+  height: 50px;
+  line-height: 50px;
+  vertical-align: middle;
+  font-weight: 700;
+  font-size: 20px;
+  color: #6b6e72;
+  padding: 0 0 0 20px;
+  background-color: #ccc;
+  box-sizing: border-box;
+}
+
+.leftHalf{
+  float: left;
+  width: 50%;
+  box-sizing: border-box;
+  padding: 0 30px 0 15px;
+  margin: 0 0 50px 0;
+}
+
+.rightHalf{
+  float: right;
+  width: 50%;
+  box-sizing: border-box;
+  padding: 0 30px 0 15px;
+  margin: 0 0 50px 0;
+}
+
+.h3 {
+  text-align:center;
+}
+
+
+
+
+.prodContainer {
+  float: left;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.ul {
+
+}
+  
+.leftcolumn {
+  width: 50%;
+  float: left;
+  border-top: solid 1px #d4d4d4;
+}
+  
+.rightcolumn {
+  width: 50%;
+  float: right;
+  border-top: solid 1px #d4d4d4;
+}
+  
+.img {
+  margin: 0px; 
+  float: left;
+}
+
+.minititle {
+  padding: 20px 0 20px 20px;
+  color: #a8010e; 
+  font-weight: 700; 
+  font-size: 18px;
+}
+  
+  
+.boldTitle {
+  margin-top: 20px;
+  font-weight:bold;
+}
+  
+.rte img,
+.rte .video-wrapper {
+  margin: 0;
+  margin-left: 0px; 
+  margin-right: 0px;
+  padding:0; 
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+  
+
+.article {
+  float: left; 
+  margin-top: 20px;
+}
+
+.articleImage {
+  float: left; 
+}
+ 
+  
+
+  
+.vue-form {
+  border: 1px solid #7796a8;
+  width: 75%;
+  margin-top: 20px;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.vue-item{
+  display: flex;
+  overflow: hidden;
+  padding: 30px 0;
+  border-bottom: 1px solid #d5d5d5;
+  width: 100%;
+}
+ 
+.vue-image {
+  width: 115px;
+  margin-left: 20px;
+  margin-right: 20px;
+  overflow: hidden;
+  float: left;
+}
+  
+.vue-text {
+  float: left;
+  width: 30%;
+  font-size: 16px;
+  font-weight: 700;
+  font-family: Roboto,sans-serif;
+}
+
+.vue-price {
+  float: right;
+  text-align: right;
+  width: 50%;
+  font-family: Roboto,sans-serif;
+}
+ 
+#addCartBut {
+  width: 30%; 
+  float: right;
+  padding-left: 10px;
+  padding-right: 10px;
+  line-height: 30px;
+  border: none;
+} 
+
+  
+.rte ul, .rte ol {
+    margin-left: 0px;
+}
+  
+  
+  
+.reviewCount {
+  position: absolute; 
+  top: 0;
+  right: 0;
+  padding: 4px 4px;
+  font-size: 12px;
+  color: white;
+  font-weight: 600;
+  text-align: center;
+  box-shadow: 2px 2px 2px grey;
+  background-color: var(--primary-button-background);
+  
+}
+  
+#accessoriesCount {
+  position: absolute; 
+  top: 0;
+  right: 0;
+  padding: 4px 4px;
+  font-size: 12px;
+  color: white;
+  font-weight: 600;
+  text-align: center;
+  box-shadow: 2px 2px 2px grey;
+  background-color: var(--primary-button-background);
+  
+}
+  
+#desktop-product-reviews {
+  padding: 15px; 
+}
+  
+#desktop-qa-section {
+  padding: 15px; 
+}
+  
+#videoDiv {
+  padding: 15px; 
+  padding-top: 0px;
+}
+  
+
+  
+  @media only screen and (max-width: 600px) {
+  .desktops  {  
+    display: none;
+  }
+}  
+    
+   @media only screen and (min-width: 601px) {
+  .mobiles  {  
+    display: none;
+  }
+}  
+ 
+  
+  
+}
+</style>
+
+
+{% else %}
+	{{ description }}
+{% endif %}
